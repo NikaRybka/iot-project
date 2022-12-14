@@ -1,6 +1,8 @@
-from azure.iot.device import IoTHubDeviceClient, Message
+from asyncio import create_task
+from azure.iot.device import IoTHubDeviceClient, Message, MethodRequest, MethodResponse
 from typing import Literal
 import json
+from datetime import datetime
 
 
 class Agent:
@@ -9,9 +11,18 @@ class Agent:
         self.client = IoTHubDeviceClient.create_from_connection_string(connection_string)
         self.client.connect()
 
+        self.client.on_method_request_received = self.method_request_handler
+
+        self.tasks = []
+
     @classmethod
     def create(cls, device, connection_string):
         return cls(device, connection_string)
+
+    def get_tasks(self):
+        tasks = [create_task(task) for task in self.tasks] + [create_task(self.send_telemetry())]
+        self.tasks = []
+        return tasks
 
     async def send_telemetry(self):
         data = {
@@ -34,3 +45,22 @@ class Agent:
         )
 
         self.client.send_message(message)
+
+    def method_request_handler(self, method_request: MethodRequest):
+        if method_request.name == 'EmergencyStop':
+            print('Wywołanie metody EmergencyStop')
+            self.tasks.append(self.device.call_method('EmergencyStop'))
+        elif method_request.name == 'ResetErrorStatus':
+            print('Wywołanie metody ResetErrorStatus')
+            self.tasks.append(self.device.call_method('ResetErrorStatus'))
+        elif method_request.name == 'MaintenanceDone':
+            print('Wywołanie metody MaintenanceDone')
+            self.client.patch_twin_reported_properties({"LastMaintenanceDate": datetime.now().isoformat()})
+        else:
+            print('Nieznana metoda: ', method_request.name)
+
+        self.client.send_method_response(MethodResponse(
+            request_id=method_request.request_id,
+            status=200,
+            payload='OK'
+        ))

@@ -25,7 +25,7 @@ async def main():
 
         while True:
             for agent in agents:
-                await agent.send_telemetry()
+                await asyncio.gather(*agent.get_tasks())
             await asyncio.sleep(1)
 
 
