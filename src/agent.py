@@ -1,4 +1,5 @@
 from asyncio import create_task
+from asyncua.ua import Variant, VariantType
 from azure.iot.device import IoTHubDeviceClient, Message, MethodRequest, MethodResponse
 from typing import Literal
 import json
@@ -12,6 +13,7 @@ class Agent:
         self.client.connect()
 
         self.client.on_method_request_received = self.method_request_handler
+        self.client.on_twin_desired_properties_patch_received = self.twin_desired_patch_handler
 
         self.tasks = []
 
@@ -64,3 +66,11 @@ class Agent:
             status=200,
             payload='OK'
         ))
+
+    def twin_desired_patch_handler(self, patch):
+        if 'ProductionRate' in patch:
+            print('Ustawienie ProductionRate na ', patch['ProductionRate'])
+            self.tasks.append(self.device.set_property_value(
+                name='ProductionRate',
+                value=Variant(patch['ProductionRate'], VariantType.Int32)
+            ))

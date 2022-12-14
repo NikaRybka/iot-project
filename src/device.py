@@ -1,4 +1,5 @@
 from asyncua.common.node import Node
+from asyncua.ua import Variant
 from typing import Literal
 
 
@@ -23,6 +24,9 @@ class Device:
     async def get_property_value(self, name: str):
         prop = await self.get_property(name)
         return await prop.read_value()
+
+    async def set_property_value(self, name: str, value: Variant):
+        await (await self.get_property(name)).write_value(value)
 
     async def call_method(self, method_name: Literal['EmergencyStop', 'ResetErrorStatus', 'MaintenanceDone']):
         await self.node.call_method(method_name)
