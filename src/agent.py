@@ -16,6 +16,7 @@ class Agent:
         self.client.on_twin_desired_properties_patch_received = self.twin_desired_patch_handler
 
         self.tasks = []
+        self.errors = []
 
     @classmethod
     def create(cls, device, connection_string):
@@ -25,6 +26,12 @@ class Agent:
         tasks = [create_task(task) for task in self.tasks] + [create_task(self.send_telemetry())]
         self.tasks = []
         return tasks
+
+    async def get_subscribed_properties(self):
+        return [
+            await self.device.get_property('ProductionRate'),
+            await self.device.get_property('DeviceError')
+        ]
 
     async def send_telemetry(self):
         data = {
@@ -74,3 +81,26 @@ class Agent:
                 name='ProductionRate',
                 value=Variant(patch['ProductionRate'], VariantType.Int32)
             ))
+
+    async def datachange_notification(self, node, val, _):
+        prop_name = await node.read_browse_name()
+
+        if prop_name.Name == 'DeviceError':
+            self.errors.clear()
+            errors = {
+                1: 'Emergency Stop',
+                2: 'Power Failure',
+                4: 'Sensor Failure',
+                8: 'Unknown'
+            }
+
+            for err_value, error in errors.items():
+                if val & err_value:
+                    if error not in self.errors:
+                        self.errors.append(error)
+                        self.send_message({'DeviceError': error}, 'event')
+                        self.client.patch_twin_reported_properties({"LastErrorDate": datetime.now().isoformat()})
+            self.client.patch_twin_reported_properties({"device_error": self.errors})
+
+        elif prop_name.Name == 'ProductionRate':
+            self.client.patch_twin_reported_properties({"ProductionRate": val})

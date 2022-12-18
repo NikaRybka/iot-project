@@ -8,6 +8,7 @@ import asyncio
 async def main():
     config = Config()
     agents = []
+    subscriptions = []
 
     async with Client(config.server_url) as client:
         server_node = client.get_server_node()
@@ -18,6 +19,10 @@ async def main():
 
                 agent = Agent.create(Device.create(device), connection_string)
                 agents.append(agent)
+
+                subscription = await client.create_subscription(250, agent)
+                await subscription.subscribe_data_change(await agent.get_subscribed_properties())
+                subscriptions.append(subscription)
 
         if not len(agents):
             print('Nie znaleziono żadnych urządzeń')
