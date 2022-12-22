@@ -1,0 +1,13 @@
+{
+    "Name": "asa-out-emergency-stop-http-trigger",
+    "DataSourceType": "Azure Function",
+    "AzureFunctionProperties": {
+        "FunctionAppName": "logika-biznesowa",
+        "FunctionName": "EmergencyStopHttpTrigger",
+        "ApiKey": null,
+        "MaxBatchSize": 262144,
+        "MaxBatchCount": 100
+    },
+    "DataSourceCredentialDomain": null,
+    "ScriptType": "Output"
+}

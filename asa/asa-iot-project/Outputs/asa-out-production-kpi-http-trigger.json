@@ -1,0 +1,13 @@
+{
+    "Name": "asa-out-production-kpi-http-trigger",
+    "DataSourceType": "Azure Function",
+    "AzureFunctionProperties": {
+        "FunctionAppName": "logika-biznesowa",
+        "FunctionName": "ProductionKpiHttpTrigger",
+        "ApiKey": null,
+        "MaxBatchSize": 262144,
+        "MaxBatchCount": 100
+    },
+    "DataSourceCredentialDomain": null,
+    "ScriptType": "Output"
+}

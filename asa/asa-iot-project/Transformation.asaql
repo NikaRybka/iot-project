@@ -1,0 +1,54 @@
+-- produkcja per workorderId
+SELECT
+    WorkorderId,
+    SUM(GoodCount) AS GoodCountSum,
+    SUM(BadCount) AS BadCountSum
+INTO [asa-out-production-counts]
+FROM [asa-in-iothub] TIMESTAMP BY EventEnqueuedUtcTime
+GROUP BY
+    WorkorderId, TumblingWindow(minute , 15)
+
+-- production kpi
+SELECT
+    (SUM(GoodCount) / (SUM(GoodCount) + SUM(BadCount))) AS ProductionKPI
+INTO [asa-out-kpi]
+FROM [asa-in-iothub] TIMESTAMP BY EventEnqueuedUtcTime
+GROUP BY
+    TumblingWindow(minute , 15)
+
+-- minimalna, maksymalna i średnia temperatura
+SELECT
+    WorkorderId,
+    AVG(Temperature) AS AvgTemp,
+    MIN(Temperature) AS MinTemp,
+    MAX(Temperature) AS MaxTemp
+INTO [asa-out-machine-temperatures]
+FROM [asa-in-iothub] TIMESTAMP BY EventEnqueuedUtcTime
+GROUP BY
+    WorkorderId, TumblingWindow(minute , 5)
+
+-- błędy w 15 minutowym okienku
+SELECT ih.IoTHub.ConnectionDeviceId, COUNT(message_type) as errors
+INTO [asa-out-error-per-machine]
+FROM [asa-in-iothub] ih TIMESTAMP by EventEnqueuedUtcTime
+WHERE message_type = 'event'
+GROUP BY
+    message_type, ih.IoTHub.ConnectionDeviceId, TumblingWindow(minute , 15)
+HAVING count(message_type) > 3
+
+--- awaryjne zatrzymanie dla funkcji
+SELECT ih.IoTHub.ConnectionDeviceId, COUNT(message_type) as errors
+INTO [asa-out-emergency-stop-http-trigger]
+FROM [asa-in-iothub] ih TIMESTAMP by EventEnqueuedUtcTime
+WHERE message_type = 'event'
+GROUP BY
+    message_type, ih.IoTHub.ConnectionDeviceId, TumblingWindow(minute , 15)
+
+-- production kpi dla funkcji
+SELECT
+    (SUM(GoodCount) / (SUM(GoodCount) + SUM(BadCount))) AS kpi,
+    System.Timestamp() AS WindowEndTime
+INTO [asa-out-production-kpi-http-trigger]
+FROM [asa-in-iothub] TIMESTAMP BY EventEnqueuedUtcTime
+GROUP BY
+    TumblingWindow(minute , 15)
