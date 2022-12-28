@@ -15,7 +15,7 @@ Na końcu dla wszystkich agentów w nieskończonej pętli w koło zgarniamy i wy
 
 ## Konfiguracja agenta
 
-Proces konfiguracja agenta polega na pobraniu jego ustawień z pliku konfiguracyjnego `config.ini`. W pliku tym znajduje się zapytany `connection_string` dla każdego urządzenia. W przypadku kiedy dla urządzenia w pliku konfiguracyjnym nie ma `connection_string`, użytkownik zostaje o niego zapytany, a odpowiedź zostaje zapisana. Przy tworzeniu agenta, zostaje także przekazana instancja klasy `Device` o wszystkimi metodami potrzebnymi to kontroli nad urządzeniem.
+Proces konfiguracji agenta polega na pobraniu jego ustawień z pliku konfiguracyjnego `config.ini`. W pliku tym znajduje się zapytany `connection_string` dla każdego urządzenia. W przypadku kiedy dla urządzenia w pliku konfiguracyjnym nie ma `connection_string`, użytkownik zostaje o niego zapytany, a odpowiedź zostaje zapisana. Przy tworzeniu agenta, zostaje także przekazana instancja klasy `Device` z wszystkimi metodami potrzebnymi do kontroli nad urządzeniem.
 
 Przykładowa konfiguracja:
 ```ini
@@ -30,7 +30,7 @@ agent = Agent.create(Device.create(device), connection_string)
 
 ## Komunikacja D2C
 
-Agent wysyła informacje do IoTHuba co jedną sekundę w przypadku telemetrii i w przypadku wystąpienia błędu z maksymalnie 500 milisekundowym opóźnieniem (subskrypcja sprawdza obserwowane parametry co 500ms)
+Agent wysyła informacje do IoTHuba co jedną sekundę w przypadku telemetrii i w przypadku wystąpienia błędu z maksymalnie 500 milisekundowym opóźnieniem (subskrypcja sprawdza obserwowane parametry co 500ms).
 
 Przykładowe dane telemetryczne:
 ```json
@@ -62,9 +62,9 @@ Przykładowe dane na temat występującego błędu:
 
 ## Device Twin
 
-W device twin przechowywane są informacje na temat aktualnego tempa produkcji, aktualnie występujących błędach, czasie w jakim wystąpił ostatni błąd oraz czasie kiedy to został on naprawiony.
+W device twin przechowywane są informacje na temat aktualnego tempa produkcji, aktualnie występujących błędów, czasu w jakim wystąpił ostatni błąd oraz czasu kiedy to został on naprawiony.
 
-Dodatkowo w obiekcie `desired` możemy przekazać informacje na temat pożadanego tempa produkcji (pod kluczem `ProductionRate`), informacja ta zostanie pobrana przez urządzenie i zostanie ona zastosowana.
+Dodatkowo w obiekcie `desired` możemy przekazać informacje na temat pożądanego tempa produkcji (pod kluczem `ProductionRate`), informacja ta zostanie pobrana przez urządzenie i zostanie ona zastosowana.
 
 Przykładowy Device Twin:
 ```json
@@ -135,7 +135,7 @@ Agent posiada zaimplementowane 3 metody:
 - ResetErrorStatus
 - MaintenanceDone
 
-Metody te nie potrzebują podawania żadnych argumentów oraz zwracają tylko wiadomość "OK" z statusem 200.
+Metody te nie potrzebują podawania żadnych argumentów oraz zwracają tylko wiadomość "OK" ze statusem 200.
 
 Przykłady wywołania metod:
 ![wywołane metody](metody.png)
@@ -212,4 +212,4 @@ GROUP BY
     TumblingWindow(minute , 15)
 ```
 
-Funkcje po otrzymaniu danych i zajściu wyznaczonych warunków wywołują dostępne dla urządzenia metody poprzed C2D.
+Funkcje po otrzymaniu danych i zajściu wyznaczonych warunków wywołują dostępne dla urządzenia metody poprzez C2D.
