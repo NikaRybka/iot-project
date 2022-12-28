@@ -64,7 +64,7 @@ Przykładowe dane na temat występującego błędu:
 
 W device twin przechowywane są informacje na temat aktualnego tempa produkcji, aktualnie występujących błędów, czasu w jakim wystąpił ostatni błąd oraz czasu kiedy to został on naprawiony.
 
-Dodatkowo w obiekcie `desired` możemy przekazać informacje na temat pożądanego tempa produkcji (pod kluczem `ProductionRate`), informacja ta zostanie pobrana przez urządzenie i zastosowana.
+Dodatkowo w obiekcie `desired` możemy przekazać informacje na temat pożądanego tempa produkcji (pod kluczem `ProductionRate`), informacja ta zostanie pobrana przez urządzenie oraz zastosowana.
 
 Przykładowy Device Twin:
 ```json
